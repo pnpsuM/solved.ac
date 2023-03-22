@@ -1,27 +1,45 @@
 import sys
+from collections import deque
 
-seek, hide = tuple(map(int, sys.stdin.readline().split()))
-memo = {}
+loc, hide = tuple(map(int, sys.stdin.readline().split()))
 time = 0
-memo[seek] = time
+graph = {}
+visited = []
 
-while True:
-    flag = 0
-    loc = seek + 1
-    flag = 1 if loc == hide else 0
-    try: memo[loc] = min(memo[loc], memo[seek] + 1)
-    except: memo[loc] = memo[seek] + 1
+def f(loc):
+    loc += 1
+    return loc
 
-    loc = seek - 1
-    flag = 1 if loc == hide else 0
-    try: memo[loc] = min(memo[loc], memo[seek] + 1)
-    except: memo[loc] = memo[seek] + 1
-    
-    loc = seek * 2
-    flag = 1 if loc == hide else 0
-    try: memo[loc] = min(memo[loc], memo[seek] + 1)
-    except: memo[loc] = memo[seek] + 1
+def b(loc):
+    loc -= 1
+    return loc
 
-    if flag == 1:
-        break
-print(memo[hide])
+def t(loc):
+    loc *= 2
+    return loc
+
+def node(loc):
+    flag = loc >= 0 and loc <= 100000
+    if loc < hide * 2 and loc not in graph.keys() and flag:
+        graph[loc] = [t(loc), f(loc), b(loc)]
+        node(t(loc))
+        node(f(loc))
+        node(b(loc))
+        
+def seek(loc, hide, cnt):
+    q = deque()
+    q.append(loc)
+    cnt += 1
+    visited.append(loc)
+    while q:
+        x = q.popleft()
+        print(x, end=' ')
+        for i in graph[x]:
+            if not visited[i]:
+                q.append(i)
+                visited[i] = True
+
+node(loc)
+print(graph)
+cnt = 0
+print(seek(loc, hide, cnt))
